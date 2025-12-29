@@ -136,7 +136,7 @@ progress_var = tk.DoubleVar(value=0)
 status_var = tk.StringVar(value="Esperando instrucciones...")
 
 # --- MAQUETACIÓN ---
-header_label = ttk.Label(root, text="✨ YT Downloader Ew ✨", style="Header.TLabel", anchor="center")
+header_label = ttk.Label(root, text="▶️ YT Downloader Ew ⬇️", style="Header.TLabel", anchor="center")
 header_label.pack(pady=(30, 20), fill=tk.X)
 
 card = ttk.Frame(root, style="Card.TFrame", padding=40)
