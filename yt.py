@@ -66,11 +66,10 @@ def descargar_playlist(url, download_dir, progress_var, status_var):
             'cookiefile': cookies_path if cookies_path else None,
             'force_generic_extractor': False,
             'extract_flat': False,
-            'js_executables': ['/opt/node-v22.21.0-linux-x64/bin/node'],  # Forzar Node.js
+            'js_executables': ['node'],  # Usar Node.js desde el PATH
             'remote_components': ['ejs:npm', 'ejs:github'],  # Habilitar componentes remotos
             'compat_opts': ['no-youtube-unavailable-videos'],  # Evitar videos no disponibles
-            'js_runtimes': {'node': {'executable': '/opt/node-v22.21.0-linux-x64/bin/node'}},  # Correct Node.js runtime format
-            'hls_prefer_native': True,  # Use native HLS downloader
+            'js_runtimes': {'node': {'executable': 'node'}},  # Use 'node' from PATH            'hls_prefer_native': True,  # Use native HLS downloader
             'fragment_retries': 20,  # Increase fragment retries
         }
 
