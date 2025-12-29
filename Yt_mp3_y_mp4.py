@@ -5,14 +5,13 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import threading
 
-# ============ CONFIGURACIÓN DE ESTILO (Paleta Biblioteca Mágica) ============
+# ============ CONFIGURACIÓN DE ESTILO ============
 BG_COLOR = "#e6f0ff"        
 TITLE_COLOR = "#2a2a72"     
 BUTTON_COLOR = "#4a90e2"    
 ACCENT_COLOR = "#1e6bbd"    
 CARD_BG = "#ffffff"         
 
-# FUENTES
 FONT_TITLE_LARGE = ("Georgia", 28, "bold")
 FONT_TITLE_MEDIUM = ("Arial", 12, "bold")
 FONT_LABEL = ("Arial", 11)
@@ -65,10 +64,9 @@ def descargar_playlist(url, download_dir, format_type, progress_var, status_var,
                 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}],
             })
         else:
-            quality = format_type.split(" ")[1][1:-1]
+            # Configuración simplificada: Busca el mejor MP4 que ya contenga audio y video (single)
             ydl_opts.update({
-                'format': f'bestvideo[height<={quality}]+bestaudio/best',
-                'merge_output_format': 'mp4',
+                'format': 'best[ext=mp4]/best',
             })
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -89,9 +87,9 @@ def progress_callback(d, progress_var, status_var):
         if total:
             p = (d['downloaded_bytes'] / total) * 100
             progress_var.set(p)
-            status_var.set(f"Descargando contenido... {int(p)}%")
+            status_var.set(f"Descargando... {int(p)}%")
     elif d['status'] == 'finished':
-        status_var.set("Uniendo pistas de audio y video...")
+        status_var.set("Finalizando archivo...")
 
 # ============ INTERFAZ GRÁFICA ============
 
@@ -124,7 +122,6 @@ root.configure(bg=BG_COLOR)
 style = ttk.Style()
 style.theme_use('clam')
 
-# Configuración de estilos
 style.configure("TFrame", background=BG_COLOR)
 style.configure("Card.TFrame", background=CARD_BG, relief="flat")
 style.configure("TLabel", background=CARD_BG, foreground=TITLE_COLOR, font=FONT_LABEL)
@@ -134,26 +131,21 @@ style.configure("Main.TButton", background=BUTTON_COLOR, foreground="white", fon
 style.map("Main.TButton", background=[('active', '#357abd'), ('disabled', '#a0c4ff')])
 style.configure("Horizontal.TProgressbar", background=BUTTON_COLOR, troughcolor=BG_COLOR, thickness=15)
 
-# --- INICIALIZACIÓN DE VARIABLES DE CONTROL ---
-# Deben estar antes de crear los widgets que las usan
 folder_var = tk.StringVar(value=os.path.expanduser("~"))
 progress_var = tk.DoubleVar(value=0)
 status_var = tk.StringVar(value="Esperando instrucciones...")
 
 # --- MAQUETACIÓN ---
-
 header_label = ttk.Label(root, text="✨ YT Downloader Ew ✨", style="Header.TLabel", anchor="center")
 header_label.pack(pady=(30, 20), fill=tk.X)
 
 card = ttk.Frame(root, style="Card.TFrame", padding=40)
 card.pack(padx=30, pady=10, fill=tk.BOTH, expand=True)
 
-# URL
 ttk.Label(card, text="URL del Video o Playlist:", font=FONT_TITLE_MEDIUM).pack(anchor="w")
 ent_url = ttk.Entry(card, font=("Arial", 11))
 ent_url.pack(fill=tk.X, pady=(5, 20))
 
-# Directorio
 ttk.Label(card, text="Directorio de descarga:", font=FONT_TITLE_MEDIUM).pack(anchor="w")
 f_frame = ttk.Frame(card, style="Card.TFrame")
 f_frame.pack(fill=tk.X, pady=(5, 20))
@@ -163,14 +155,15 @@ ent_folder.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 10))
 btn_folder = ttk.Button(f_frame, text="Explorar", command=seleccionar_carpeta)
 btn_folder.pack(side=tk.RIGHT)
 
-# Opciones
 bottom_opts = ttk.Frame(card, style="Card.TFrame")
 bottom_opts.pack(fill=tk.X, pady=10)
 
 fmt_box = ttk.Frame(bottom_opts, style="Card.TFrame")
 fmt_box.pack(side=tk.LEFT, fill=tk.X, expand=True)
 ttk.Label(fmt_box, text="Formato final:", font=FONT_TITLE_MEDIUM).pack(anchor="w")
-cmb_format = ttk.Combobox(fmt_box, values=["MP3", "MP4 (480p)", "MP4 (720p)", "MP4 (1080p)"], state="readonly")
+
+# COMBOBOX SIMPLIFICADO
+cmb_format = ttk.Combobox(fmt_box, values=["MP3", "MP4"], state="readonly")
 cmb_format.current(0)
 cmb_format.pack(anchor="w", pady=5)
 
@@ -182,11 +175,9 @@ btn_cook.pack(pady=5)
 lbl_cookies = ttk.Label(cook_box, text="Sin cookies cargadas", font=FONT_SMALL, foreground="gray")
 lbl_cookies.pack()
 
-# Botón Ejecutar
 btn_run = ttk.Button(card, text="DESCARGAR AHORA", style="Main.TButton", command=ejecutar, cursor="hand2")
 btn_run.pack(fill=tk.X, pady=(20, 0), ipady=12)
 
-# Barra de progreso y estado (Usando las variables ya definidas arriba)
 pb = ttk.Progressbar(card, variable=progress_var, maximum=100, style="Horizontal.TProgressbar")
 pb.pack(fill=tk.X, pady=(20, 5))
 
